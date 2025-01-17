@@ -11,7 +11,7 @@ def verificar_lineas(directorio, num_lineas):
     reporte = []
 
     for archivo in os.listdir(directorio):
-        if archivo.endswith(".dat"):  # Asumiendo que los archivos tienen extensión .txt
+        if archivo.endswith(".dat"):  # Asumiendo que los archivos tienen extensión .dat
             ruta_archivo = os.path.join(directorio, archivo)
             with open(ruta_archivo, 'r', encoding='utf-8') as f:
                 lineas = f.readlines()
@@ -29,7 +29,7 @@ def verificar_lineas(directorio, num_lineas):
 
 
 # Parámetros
-directorio = "/home/adria.manero.7e8/Baixades/dades/precip.MIROC5.RCP60.2006-2100.SDSM_REJ"  # Ruta al directorio con los archivos
+directorio = "/home/adr1k/PycharmProjects/TA06-Python_CSV_Web_Sostenibilidad/precip.MIROC5.RCP60.2006-2100.SDSM_REJ"  # Ruta al directorio con los archivos
 num_lineas = 1142  # Número esperado de líneas
 
 # Llamada a la función
