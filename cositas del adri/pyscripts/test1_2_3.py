@@ -1,6 +1,7 @@
 import logging
 import pandas as pd
 import os
+from tqdm import tqdm
 
 # Configure the logging
 logging.basicConfig(
@@ -45,7 +46,7 @@ def insertar_linea_en_posicion(ruta_archivo):
             lineas.append("\n")
 
         # Insertar la línea en la posición 3 (índice 2)
-        lineas[2] = linea_deseada
+        lineas.insert(2, linea_deseada)
 
         # Escribir el contenido actualizado de nuevo al archivo
         with open(ruta_archivo, 'w', encoding='utf-8') as archivo:
@@ -55,13 +56,14 @@ def insertar_linea_en_posicion(ruta_archivo):
         logging.error(f"An unexpected error occurred: {e}")
 
 
-def validate_integers_with_logging(df):
+def validate_integers_with_logging(df, filename):
     """
     Validates that all values in the DataFrame (excluding column 0) are integers.
     Logs any non-integer values using Python's logging module.
 
     Parameters:
         df (pd.DataFrame): The DataFrame to validate.
+        filename (str): The name of the file being processed.
     """
     # Iterate over all columns starting from column 1
     for col in df.columns[1:]:
@@ -73,30 +75,31 @@ def validate_integers_with_logging(df):
                 # Log the invalid value
                 logging.warning(f"Invalid value '{value}' at row {idx}, column '{col}' in file '{filename}'")
 
-    print("Validation complete. Check 'app.log' for details.")
-
 
 # Directory containing the .dat files
-directory = "/home/adr1k/PycharmProjects/TA06-Python_CSV_Web_Sostenibilidad/pyscripts/data_sample"
+directory = "/home/adr1k/PycharmProjects/TA06-Python_CSV_Web_Sostenibilidad/precip.MIROC5.RCP60.2006-2100.SDSM_REJ"
 target_string = "precip\tMIROC5\tRCP60\tREGRESION\tdecimas\t1"
 
 # Process each .dat file in the directory
-for filename in os.listdir(directory):
-    if filename.endswith(".dat"):
-        filepath = os.path.join(directory, filename)
+files = [f for f in os.listdir(directory) if f.endswith(".dat")]
+for filename in tqdm(files, desc="Processing files in directory"):
+    filepath = os.path.join(directory, filename)
 
-        # Check if the string exists in the file
-        if string_exists_in_file(filepath, target_string):
-            print(f"{filename}: 0") #I can remove it later
-        else:
-            logging.info(f"The string '{target_string}' was not found in the file '{filepath}'.")
-            print(f"{filename}: 1") #I can remove it later
+    # Check if the string exists in the file
+    if string_exists_in_file(filepath, target_string):
+        pass
+    else:
+        logging.info(f"The string '{target_string}' was not found in the file '{filepath}'.")
 
-        # Call the function to insert the line
-        insertar_linea_en_posicion(filepath)
+    # Call the function to insert the line
+    insertar_linea_en_posicion(filepath)
 
-        # Dataframe from CSV
+    # Dataframe from CSV
+    try:
         df = pd.read_csv(filepath, skiprows=2, sep=r'\s+', engine='python')
+    except Exception as e:
+        logging.error(f"Error processing file with pandas {filename}: {e}")
+        continue
 
-        # Validate the DataFrame
-        validate_integers_with_logging(df)
+    # Validate the DataFrame
+    validate_integers_with_logging(df, filename)

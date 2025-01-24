@@ -1,32 +1,31 @@
 import os
 import pandas as pd
+from tqdm import tqdm
 
 # Ruta de la carpeta
-folder_path = r'C:\Users\adria\PycharmProjects\TA06-Python_CSV_Web_Sostenibilidad\precip.MIROC5.RCP60.2006-2100.SDSM_REJ'
+folder_path = '/home/adr1k/PycharmProjects/TA06-Python_CSV_Web_Sostenibilidad/precip.MIROC5.RCP60.2006-2100.SDSM_REJ'
 
 # Inicializar contadores
 total_values = 0
-good_values = 0
-bad_values = 0
+null_values = 0
 
-# Iterar sobre todos los archivos en la carpeta
-for file_name in os.listdir(folder_path):
+# Obtener la lista de archivos en la carpeta
+file_list = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+
+# Iterar sobre todos los archivos en la carpeta con una barra de progreso
+for file_name in tqdm(file_list, desc="Processing files", unit="file"):
     file_path = os.path.join(folder_path, file_name)
 
-    # Verificar si es un archivo
-    if os.path.isfile(file_path):
-        try:
-            # Leer el archivo CSV omitiendo las primeras dos filas
-            df = pd.read_csv(file_path, skiprows=2, header=None, sep=' ')
+    try:
+        # Leer el archivo CSV omitiendo las primeras dos filas
+        df = pd.read_csv(file_path, skiprows=2, sep=r'\s+', engine='python')
 
-            # Seleccionar desde la fila 3 y la columna 4
-            df = df.iloc[3:, 4:]
-            total_values += df.size
-            good_values += (df != -999).sum().sum()
-            bad_values += (df == -999).sum().sum()
-        except Exception as e:
-            print(f'Error processing file {file_name}: {e}')
+        # Seleccionar desde la columna 4
+        df = df.iloc[:, 3:]
+        total_values += df.size
+        null_values += (df == -999).sum().sum()
+    except Exception as e:
+        print(f'Error processing file {file_name}: {e}')
 
 print(f'Total de valores: {total_values}')
-print(f'Valores buenos: {good_values}')
-print(f'Valores malos: {bad_values}')
+print(f'Valores nulos (-999): {null_values}')
