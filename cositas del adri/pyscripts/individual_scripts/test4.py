@@ -2,9 +2,8 @@ import pandas as pd
 import numpy as np
 
 
-df = pd.read_csv('/home/adr1k/PycharmProjects/TA06-Python_CSV_Web_Sostenibilidad/cositas del adri/pyscripts/data_sample/precip.P1.MIROC5.RCP60.2006-2100.REGRESION.dat', skiprows=2, sep=r'\s+', engine='python')
+df = pd.read_csv('/home/adr1k/PycharmProjects/TA06-Python_CSV_Web_Sostenibilidad/cositas del adri/pyscripts/data_sample/precip.P9.MIROC5.RCP60.2006-2100.REGRESION.dat', skiprows=2, sep=r'\s+', engine='python')
 
-# Replace invalid values (-999) with NaN
 # Replace invalid values (-999) with NaN
 df.replace(-999, np.nan, inplace=True)
 
@@ -21,3 +20,7 @@ results = df_melted.groupby("AÑO")["Precipitación"].agg(["sum", "mean"]).renam
 print(results)
 
 print(df_melted)
+
+
+
+
