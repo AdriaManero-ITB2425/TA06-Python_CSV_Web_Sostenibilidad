@@ -47,7 +47,7 @@ def validate_integers_with_logging(df, filename):
             except (ValueError, TypeError):
                 logging.warning(f"Invalid value '{value}' at row {idx}, column '{col}' in file '{filename}'")
 
-directory = "/home/adr1k/PycharmProjects/TA06-Python_CSV_Web_Sostenibilidad/precip.MIROC5.RCP60.2006-2100.SDSM_REJ"
+directory = "/home/adria.manero.7e8/PycharmProjects/TA06-Python_CSV_Web_Sostenibilidad/precip.MIROC5.RCP60.2006-2100.SDSM_REJ"
 target_string = "precip\tMIROC5\tRCP60\tREGRESION\tdecimas\t1"
 
 files = [f for f in os.listdir(directory) if f.endswith(".dat")]

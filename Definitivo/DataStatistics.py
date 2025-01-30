@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 
 # Ruta de la carpeta
-folder_path = '/home/adr1k/PycharmProjects/TA06-Python_CSV_Web_Sostenibilidad/cositas del adri/pyscripts/data_sample'
+folder_path = '../precip.MIROC5.RCP60.2006-2100.SDSM_REJ'
 
 # Inicializar un DataFrame para almacenar los resultados agregados
 aggregated_results = pd.DataFrame()
