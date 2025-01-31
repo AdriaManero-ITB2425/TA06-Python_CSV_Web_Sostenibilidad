@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDS</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-rows: 1fr;
+            height: 100vh;
+            gap: 10px;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            background-color: #3a3a3a;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container:hover {
+            background-color: #4a4a4a;
+            transform: scale(1.02);
+        }
+        .left, .middle, .right {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 100%;
+        }
+        .left .container:first-child {
+            height: 10%;
+            background-color: #2c2c2c;
+            font-weight: bold;
+            font-size: 24px;
+        }
+        .left .container:not(:first-child),
+        .middle .container,
+        .right .container {
+            flex: 1;
+        }
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        /* Ajustes para el título "¿Qué año prefieres?" */
+        .right .container {
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #3a3a3a; /* Ajustamos el color de fondo */
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        /* Ajuste para hacer más alto el div inferior derecho */
+        .right .container:last-child {
+            flex: 2; /* Hacemos el div más alto */
+        }
+
+        /* Estilo para el menú de selección de año */
+        .menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: rgba(58, 58, 58, 0.9); /* Ajustamos el color de fondo */
+            color: #fff;
+            transition: right 0.3s ease;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Permitimos el desplazamiento */
+        }
+        .menu.active {
+            right: 0;
+        }
+        .menu h2 {
+            margin-bottom: 20px;
+        }
+
+        /* Estilo para el campo de búsqueda */
+        .search-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .search-container input {
+            width: 100%;
+            padding: 10px;
+            background-color: #444;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+        }
+        .search-container .search-icon {
+            position: absolute;
+            right: 20px;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        /* Estilo para los botones */
+        .menu button {
+            background-color: #444;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-radius: 5px;
+        }
+        .menu button:hover {
+            background-color: #666;
+        }
+
+        /* Estilo para los títulos en los contenedores */
+        .left .title {
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #2c2c2c;
+            padding: 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="left">
+        <div class="container">SPAIN</div>
+        <div class="title">Total datos procesados</div>
+        <div class="container"></div>
+        <div class="title">Años más lluviosos</div>
+        <div class="container"></div>
+        <div class="title">Años más secos</div>
+        <div class="container"></div>
+    </div>
+    <div class="middle">
+        <div class="container">
+            <canvas id="chart1"></canvas>
+        </div>
+        <div class="container">
+            <canvas id="chart2"></canvas>
+        </div>
+    </div>
+    <div class="right">
+        <div class="container" onclick="toggleMenu()">¿Qué año prefieres?</div>
+        <div class="container"></div>
+    </div>
+
+    <!-- Menu de selección de año -->
+    <div class="menu" id="menu">
+        <h2>Elige un año:</h2>
+        
+        <!-- Campo de búsqueda -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Buscar año..." oninput="filterYears()">
+            <span class="search-icon">&#128269;</span> <!-- Icono de lupa -->
+        </div>
+
+        <!-- Botones de selección de año generados dinámicamente -->
+        <div id="yearButtonsContainer"></div>
+    </div>
+
+    <script>
+        function createChart(canvasId, label, type) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const years = Array.from({ length: 95 }, (_, i) => 2006 + i);
+            new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: label,
+                        data: years.map(() => Math.floor(Math.random() * 2001)),
+                        borderColor: 'rgba(0, 123, 255, 1)', // Azul brillante
+                        backgroundColor: type === 'bar' ? 'rgba(0, 123, 255, 0.6)' : 'rgba(0, 123, 255, 0)', // Azul brillante
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 2000
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de líneas (chart1)
+        createChart('chart1', 'Temperatura Anual (Líneas)', 'line');
+        // Gráfico de barras (chart2)
+        createChart('chart2', 'Temperatura Anual (Barras)', 'bar');
+
+        // Función para abrir/cerrar el menú
+        function toggleMenu() {
+            const menu = document.getElementById('menu');
+            menu.classList.toggle('active');
+        }
+
+        // Función para seleccionar un año
+        function selectYear(year) {
+            alert("Has seleccionado el año: " + year);
+            toggleMenu(); // Cerrar el menú después de seleccionar un año
+        }
+
+        // Función para filtrar años según el texto de búsqueda
+        function filterYears() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const buttons = document.querySelectorAll('.yearButton');
+            
+            buttons.forEach(button => {
+                const year = button.textContent.toLowerCase();
+                if (year.includes(input)) {
+                    button.style.display = 'block';
+                } else {
+                    button.style.display = 'none';
+                }
+            });
+        }
+
+        // Generar los botones de los años de forma dinámica
+        const container = document.getElementById('yearButtonsContainer');
+        for (let year = 2006; year <= 2100; year++) {
+            const button = document.createElement('button');
+            button.classList.add('yearButton');
+            button.dataset.year = year;
+            button.textContent = year;
+            container.appendChild(button);
+            button.addEventListener('click', () => {
+                selectYear(year);
+            });
+        }
+
+        // Cerrar el menú si se hace clic fuera de él
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('menu');
+            const menuButton = document.querySelector('.right .container');
+            if (!menu.contains(e.target) && !menuButton.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
